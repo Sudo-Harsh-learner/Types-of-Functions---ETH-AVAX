@@ -1,10 +1,10 @@
-# ETH + AVAX PROOF: Intermediate EVM Course
+# ETH + AVAX PROOF: Types of functions
 
-This Solidity program is a simple "MyContract" contract program in solidity that demonstrates the error handling using require, assert and revert methods. The purpose of this program is to give a basic understanding about error handling and the logic building for more such contracts.
+This Solidity program is a simple "myToken" contract program in solidity that demonstrates the token creation using ERC20 contract. The purpose of this program is to give a basic understanding about ERC20 tokens.
 
 ## Description
 
-This program is a simple contract written in Solidity, a programming language used for developing smart contracts on the Ethereum blockchain. The contract has four functions "setStudentStatus", "setMarks", "getTotalMarks" and "CGPA" that allow to set the status of a student and then set marks for a student as well as get total marks if student has more than zero marks in all subjects. Lastly, to get CGPA if student has minimum of 120 marks. This program serves as a simple and straightforward introduction to error-handling, and can be used as a stepping stone for more complex projects in the future.
+This program is a simple contract written in Solidity, a programming language used for developing smart contracts on the Ethereum blockchain. The contract has three functions "mint", "burn",  and "transferTo" that allow only owner to mint the token to a specific address and other user to either burn or transfer their tokens.
 
 ## Getting Started
 
@@ -17,52 +17,37 @@ Once you are on the Remix website, create a new file by clicking on the "+" icon
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.9;
 
-contract myContract{
-    mapping (address => bool) Student;
-    struct Marks{
-        uint Maths;
-        uint English;
-        uint Science;
-    } mapping(address => Marks) StudentMarks;
-    
-   
-    modifier isStudent(address _stu) {
-        require(Student[_stu]==true,"Only students are allowed!!");
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v4.0.0/contracts/token/ERC20/ERC20.sol";
+
+contract myToken is ERC20{
+    address private owner;
+    constructor(string memory _name, string memory _symbol) ERC20(_name, _symbol){
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner{
+        require(owner==msg.sender,"Only owner has access");
         _;
     }
 
-    function setStudentStatus(address _stu,bool _status) public {
-        Student[_stu] = _status;
-    }
-    
-    function setMarks(address _stu,uint _maths, uint _english, uint _science) public isStudent(_stu) {
-        StudentMarks[_stu] = Marks(_maths, _english, _science);
+    function mint(address _to,uint _val) public onlyOwner{
+        _mint(_to,_val);
     }
 
-    function getTotalMarks(address _student) public view isStudent(_student) returns (uint) {
-        Marks memory marks = StudentMarks[_student];
-        if(marks.Maths ==0 || marks.English ==0 || marks.Science ==0){
-            revert("You are not eligible");
-        }
-        return marks.Maths + marks.English + marks.Science;
-    }
-    
-    function CGPA(address _student) public view isStudent(_student) returns (uint) {
-        uint total = getTotalMarks(_student);
-        assert(total > 120); 
-        return total/30;
+    function burn(uint _val) public {
+        _burn(msg.sender, _val);
     }
 
-   
+    function transferTo(address _to, uint _val) public  {
+        _transfer(msg.sender, _to, _val);
+    }
 }
 ```
 
 
 To compile the code, click on the "Solidity Compiler" tab in the left-hand sidebar. Make sure the "Compiler" option is set to "0.8.9" (or another compatible version), and then click on the "Compile MyToken.sol" button.
 
-Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "MyToken" contract from the dropdown menu, and then click on the "Deploy" button.
-
-Once the contract is deployed, you can interact with it by calling the Mint or Burn function. Click on the "MyContract" contract in the left-hand sidebar, and then click on the "setStudentStatus" function. Then, enter the value and click on "setMarks". Finally, click on the "transact" button to execute the function and set the new value. Then, call "getTotalMarks" and "CGPA" methods to get the results.
+Once the code is compiled, you can deploy the contract by clicking on the "Deploy & Run Transactions" tab in the left-hand sidebar. Select the "myToken" contract from the dropdown menu, and then click on the "Deploy" button.
 
 ## Authors
 
